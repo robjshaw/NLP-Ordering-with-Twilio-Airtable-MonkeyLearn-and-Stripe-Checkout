@@ -12,5 +12,9 @@
   },
   "engines": {
     "node": "10"
+  },
+  "dependencies": {
+    "airtable": "^0.10.1",
+    "monkeylearn": "^3.4.0"
   }
 }
