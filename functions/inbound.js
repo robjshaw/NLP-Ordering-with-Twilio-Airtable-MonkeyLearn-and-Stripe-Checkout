@@ -50,27 +50,34 @@ exports.handler = function(context, event, callback) {
                             qty = parseInt(parsed_value);
                         }
 
-                        console.log(qty);
+                        order[currentorder] = { 'qty' : qty};
 
                         break;
 
                     case 'product':
 
                         console.log('product1');
+
+                        order[currentorder].parsed_value = arrayItem.parsed_value;
+
+                        currentorder = currentorder + 1;
                     
                         break;
 
                     case 'drink':
 
                         console.log('drink1');
+
+                        order[currentorder].parsed_value = arrayItem.parsed_value;
                         
+                        currentorder = currentorder + 1;
                         
                         break;
 
                 }
             });
 
-            callback(null, response);
+            callback(null, order);
         })
 
     }
