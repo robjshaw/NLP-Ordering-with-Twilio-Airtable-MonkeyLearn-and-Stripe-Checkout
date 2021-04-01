@@ -5,6 +5,8 @@ exports.handler = function(context, event, callback) {
     var Airtable = require('airtable');
     var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
 
+    var shortid = require('shortid');
+
     var inboundmessage = event.Body.toLowerCase();
     
     if (inboundmessage.includes('menu') == true){
@@ -21,65 +23,138 @@ exports.handler = function(context, event, callback) {
 
         console.log('order');
 
-        const ml = new MonkeyLearn(process.env.MLKEY)
-        let model_id = process.env.MLMODEL
-        let data = [inboundmessage]
+        var orderid = shortid.generate();
 
-        var order = [];
+        /*
 
-        ml.extractors.extract(model_id, data).then(res => {
-            console.log(null, res.body);
+            ML WORKING WELL..
 
-            var response = res.body[0];
+            const ml = new MonkeyLearn(process.env.MLKEY)
+            let model_id = process.env.MLMODEL
+            let data = [inboundmessage]
 
-            response = response.extractions;
+            var order = [];
+            
+            
+            ml.extractors.extract(model_id, data).then(res => {
+                
+                console.log(null, res.body);
 
-            var currentorder = 0;
+                var response = res.body[0];
 
-            response.forEach(function (arrayItem) {
-                var type = arrayItem.tag_name;
+                response = response.extractions;
 
-                switch(type) {
-                    case 'quantity':
+                var currentorder = 0;
 
-                        var qty = 0;
+                response.forEach(function (arrayItem) {
+                    var type = arrayItem.tag_name;
 
-                        if (arrayItem.parsed_value == 'a'){
-                            qty = 1;
-                        }else{
-                            qty = parseInt(parsed_value);
-                        }
+                    switch(type) {
+                        case 'quantity':
 
-                        order[currentorder] = { 'qty' : qty};
+                            var qty = 0;
 
-                        break;
+                            if (arrayItem.parsed_value == 'a'){
+                                qty = 1;
+                            }else{
+                                qty = parseInt(parsed_value);
+                            }
 
-                    case 'product':
+                            order[currentorder] = { 'qty' : qty};
 
-                        console.log('product1');
+                            break;
 
-                        order[currentorder].parsed_value = arrayItem.parsed_value;
+                        case 'product':
 
-                        currentorder = currentorder + 1;
+                            console.log('Products');
+
+                            order[currentorder].parsed_value = arrayItem.parsed_value;
+                            order[currentorder].base = 'Products';
+
+                            currentorder = currentorder + 1;
+                        
+                            break;
+
+                        case 'drink':
+
+                            console.log('Drinks');
+
+                            order[currentorder].parsed_value = arrayItem.parsed_value;
+                            order[currentorder].base = 'Drinks';
+                            
+                            currentorder = currentorder + 1;
+                            
+                            break;
+                    }
+
+                });
+            })
+        */
+
+        // testing struct so we don't have to hit ML platform every time
+        var order = [
+            {
+                "qty": 1,
+                "parsed_value": "beef",
+                "type": "Products"
+            },
+            {
+                "qty": 1,
+                "parsed_value": "beer",
+                "type": "Drinks"
+            }
+        ];
+
+
+        // this is the end of testing... 
+
+
+        base('Orders').create([
+            {
+                "fields":   {   "Phonenumber"   : event.From,
+                                "status"        : "created",
+                                "OrderID"       : orderid
+                            }
+            },
+        ], function(err, records) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            records.forEach(function (record) {
+
+                console.log(orderid);
+
+                order.forEach(function (orderitem) {
+
+                    var order_record = record.getId();
                     
-                        break;
+                    base('Order Items').create([
+                        {
+                            "fields": {     "keyword"       : orderitem.parsed_value,
+                                            "qty"           : orderitem.qty,
+                                            "OrderID"       : [order_record]
+                                    }
+                        }
+                        ], function(err, records) {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        records.forEach(function (record) {
+                            console.log(record.getId());
+                        });
+                    });
+                });                
+                
 
-                    case 'drink':
+                callback(null, 'done');
 
-                        console.log('drink1');
-
-                        order[currentorder].parsed_value = arrayItem.parsed_value;
-                        
-                        currentorder = currentorder + 1;
-                        
-                        break;
-
-                }
             });
 
-            callback(null, order);
-        })
+            
+        });
 
     }
-
 }
