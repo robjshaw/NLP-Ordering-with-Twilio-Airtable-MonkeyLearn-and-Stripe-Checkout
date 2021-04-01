@@ -2,8 +2,8 @@ exports.handler = function(context, event, callback) {
 
     const MonkeyLearn = require('monkeylearn')
     
-    var Airtable = require('airtable');
-    var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
+        var Airtable = require('airtable');
+        var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
 
     var shortid = require('shortid');
 
@@ -130,26 +130,37 @@ exports.handler = function(context, event, callback) {
 
                     var order_record = record.getId();
                     
-                    base('Order Items').create([
-                        {
-                            "fields": {     "keyword"       : orderitem.parsed_value,
-                                            "qty"           : orderitem.qty,
-                                            "OrderID"       : [order_record]
-                                    }
-                        }
-                        ], function(err, records) {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        records.forEach(function (record) {
-                            console.log(record.getId());
-                        });
-                    });
-                });                
-                
+                    base('Products').select({
+                        filterByFormula: `{keyword} = "${orderitem.parsed_value}"`
+                    }).eachPage(function page(records, fetchNextPage) {
 
-                callback(null, 'done');
+                        records.forEach(function(record) {
+
+                            base('Order Items').create([
+                                {
+                                    "fields": {     "keyword"       : [record.getId()],
+                                                    "qty"           : orderitem.qty,
+                                                    "OrderID"       : [order_record]
+                                            }
+                                }
+                                ], function(err, records) {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                records.forEach(function (record) {
+                                    console.log(record.getId());
+                                });
+                            });
+                        });
+
+                    });
+                    
+
+                        
+                });                
+
+                callback(null, 'Thank you for your order head over to ' + process.env.HOST + '/payment.html?orderid=' +  orderid);
 
             });
 

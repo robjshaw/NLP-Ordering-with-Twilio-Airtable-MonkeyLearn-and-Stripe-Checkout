@@ -16,6 +16,7 @@
   "dependencies": {
     "airtable": "^0.10.1",
     "monkeylearn": "^3.4.0",
-    "shortid": "^2.2.16"
+    "shortid": "^2.2.16",
+    "stripe": "^8.141.0"
   }
 }
