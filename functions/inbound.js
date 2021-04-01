@@ -31,7 +31,6 @@ exports.handler = function(context, event, callback) {
 
         var order = [];
         
-        /*
         ml.extractors.extract(model_id, data).then(res => {
             
             console.log(null, res.body);
@@ -85,11 +84,12 @@ exports.handler = function(context, event, callback) {
 
             });
         })
-        */
 
 
         // testing struct so we don't have to hit ML platform every time
         
+        /*
+
         var order = [
             {
                 "qty": 1,
@@ -102,6 +102,8 @@ exports.handler = function(context, event, callback) {
                 "type": "Drinks"
             }
         ];
+        */
+       
 
         // this is the end of testing... 
 

@@ -78,8 +78,14 @@
 
     <div class="container">
     
-        <h1>Sucess! - Your Burger is on the way!</h1>
+        <h1>Success! - Your Burger is on the way!</h1>
 
+        <hr />
+
+        <h3>Some quick details</h3>
+
+        <p>We charged your card $<input type="text" id="amount" disabled> and your reference code is <input type="text" id="reference" disabled></p>
+        
     </div>
 
     <script
@@ -101,7 +107,13 @@
 
         $.ajax(settings).done(function (response) {
             console.log(response);
+
+            $('#amount').val(response.session.amount_total/100);
+            $('#reference').val(response.session.payment_intent);
+
         });
+
+
 
     </script>
 

@@ -63,7 +63,29 @@ exports.handler = function(context, event, callback) {
             cancel_url: process.env.HOST + '/cancel.html' + '?orderid=' + event.orderid,
         },
         function (err, session){
-            callback(null, { id : session.id })
+
+          base('Orders').select({
+            filterByFormula: `{OrderID} = "${event.orderid}"`
+          }).eachPage(function page(records, fetchNextPage) {
+            records.forEach(function(record) {
+
+                base('Orders').update([
+                    {
+                      "id": record.getId(),
+                      "fields": {
+                        "payment_reference": session.id
+                      }
+                    }
+                  ], function(err, records) {
+                    if (err) {
+                      console.error(err);
+                      return;
+                    }
+                    
+                    callback(null, { id : session.id })
+                  });
+            });
+          });   
         });
     });
 }
