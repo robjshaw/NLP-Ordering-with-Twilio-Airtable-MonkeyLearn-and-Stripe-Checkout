@@ -75,7 +75,7 @@ exports.handler = function(context, event, callback) {
                         console.log('Drinks');
 
                         order[currentorder].parsed_value = arrayItem.parsed_value;
-                        order[currentorder].base = 'Drinks';
+                        order[currentorder].base = 'Products';
                         
                         currentorder = currentorder + 1;
                         
@@ -128,7 +128,7 @@ exports.handler = function(context, event, callback) {
                 order.forEach(function (orderitem) {
 
                     var order_record = record.getId();
-                    
+                    // TODO need to add fuzzy logic here like gins vs gin.
                     base('Products').select({
                         filterByFormula: `{keyword} = "${orderitem.parsed_value}"`
                     }).eachPage(function page(records, fetchNextPage) {

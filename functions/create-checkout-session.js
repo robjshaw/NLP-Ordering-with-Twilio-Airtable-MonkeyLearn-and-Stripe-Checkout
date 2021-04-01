@@ -41,7 +41,7 @@ exports.handler = function(context, event, callback) {
 
             var item = {};
 
-            item.quantity = 1;
+            item.quantity = parseInt(record.get('qty'));
             item.price_data = {};
             item.price_data.unit_amount = parseInt(record.get('Price') * 100) ;
             item.price_data.product_data = {};
