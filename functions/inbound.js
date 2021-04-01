@@ -52,7 +52,7 @@ exports.handler = function(context, event, callback) {
                         if (arrayItem.parsed_value == 'a'){
                             qty = 1;
                         }else{
-                            qty = parseInt(parsed_value);
+                            qty = parseInt(arrayItem.parsed_value);
                         }
 
                         order[currentorder] = { 'qty' : qty};
@@ -103,7 +103,7 @@ exports.handler = function(context, event, callback) {
             }
         ];
         */
-       
+
 
         // this is the end of testing... 
 
