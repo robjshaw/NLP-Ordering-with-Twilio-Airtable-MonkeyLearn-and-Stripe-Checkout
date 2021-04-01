@@ -1,6 +1,6 @@
 # Overview
 
-This is a demo of how you can go from an SMS interaction to a completed order utilizing Twilio, Monkey Learn, Airtable and Stripe.
+This is a demo of how you can go from an SMS interaction to a completed order utilizing Twilio, Monkey Learn, Airtable and Stripe Checkout.
 
 ## Environment Variables
 
@@ -16,7 +16,7 @@ This is a demo of how you can go from an SMS interaction to a completed order ut
   AIRTABLEBASE=Airtable Base ID
   STRIPE=Stripe's API Key.
 ```
-## To Install
+## How to run or deploy your application
 
 ```
 npm install
@@ -27,5 +27,3 @@ npm start
 ```
 
 This is mainly utilizing the twilio serverless framework and ngrok as a proof of concept - https://www.twilio.com/docs/labs/serverless-toolkit
-
-
