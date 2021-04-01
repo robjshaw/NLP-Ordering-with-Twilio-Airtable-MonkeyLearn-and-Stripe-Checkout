@@ -14,6 +14,31 @@ exports.handler = function(context, event, callback) {
     }).eachPage(function page(records, fetchNextPage) {
         records.forEach(function(record) {
             
+            base('Orders').select({
+                filterByFormula: `{OrderID} = "${event.orderid}"`
+            }).eachPage(function page(records, fetchNextPage) {
+                records.forEach(function(record) {
+
+                    base('Orders').update([
+                        {
+                          "id": record.getId(),
+                          "fields": {
+                            "status": "in-progress"
+                          }
+                        }
+                      ], function(err, records) {
+                        if (err) {
+                          console.error(err);
+                          return;
+                        }
+                        records.forEach(function(record) {
+                          console.log(record.get('OrderID'));
+                        });
+                      });
+
+                });
+            });
+
             var item = {};
 
             item.quantity = 1;
@@ -33,6 +58,7 @@ exports.handler = function(context, event, callback) {
             payment_method_types: ['card'],
             line_items : items,
             mode: 'payment',
+            client_reference_id : event.orderid,
             success_url: process.env.HOST + '/success.html' + '?orderid=' + event.orderid,
             cancel_url: process.env.HOST + '/cancel.html' + '?orderid=' + event.orderid,
         },
