@@ -2,8 +2,8 @@ exports.handler = function(context, event, callback) {
 
     const MonkeyLearn = require('monkeylearn')
     
-        var Airtable = require('airtable');
-        var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
+    var Airtable = require('airtable');
+    var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
 
     var shortid = require('shortid');
 
@@ -25,73 +25,70 @@ exports.handler = function(context, event, callback) {
 
         var orderid = shortid.generate();
 
-        /*
+        const ml = new MonkeyLearn(process.env.MLKEY)
+        let model_id = process.env.MLMODEL
+        let data = [inboundmessage]
 
-            ML WORKING WELL..
-
-            const ml = new MonkeyLearn(process.env.MLKEY)
-            let model_id = process.env.MLMODEL
-            let data = [inboundmessage]
-
-            var order = [];
+        var order = [];
+        
+        
+        ml.extractors.extract(model_id, data).then(res => {
             
-            
-            ml.extractors.extract(model_id, data).then(res => {
-                
-                console.log(null, res.body);
+            console.log(null, res.body);
 
-                var response = res.body[0];
+            var response = res.body[0];
 
-                response = response.extractions;
+            response = response.extractions;
 
-                var currentorder = 0;
+            var currentorder = 0;
 
-                response.forEach(function (arrayItem) {
-                    var type = arrayItem.tag_name;
+            response.forEach(function (arrayItem) {
+                var type = arrayItem.tag_name;
 
-                    switch(type) {
-                        case 'quantity':
+                switch(type) {
+                    case 'quantity':
 
-                            var qty = 0;
+                        var qty = 0;
 
-                            if (arrayItem.parsed_value == 'a'){
-                                qty = 1;
-                            }else{
-                                qty = parseInt(parsed_value);
-                            }
+                        if (arrayItem.parsed_value == 'a'){
+                            qty = 1;
+                        }else{
+                            qty = parseInt(parsed_value);
+                        }
 
-                            order[currentorder] = { 'qty' : qty};
+                        order[currentorder] = { 'qty' : qty};
 
-                            break;
+                        break;
 
-                        case 'product':
+                    case 'product':
 
-                            console.log('Products');
+                        console.log('Products');
 
-                            order[currentorder].parsed_value = arrayItem.parsed_value;
-                            order[currentorder].base = 'Products';
+                        order[currentorder].parsed_value = arrayItem.parsed_value;
+                        order[currentorder].base = 'Products';
 
-                            currentorder = currentorder + 1;
+                        currentorder = currentorder + 1;
+                    
+                        break;
+
+                    case 'drink':
+
+                        console.log('Drinks');
+
+                        order[currentorder].parsed_value = arrayItem.parsed_value;
+                        order[currentorder].base = 'Drinks';
                         
-                            break;
+                        currentorder = currentorder + 1;
+                        
+                        break;
+                }
 
-                        case 'drink':
-
-                            console.log('Drinks');
-
-                            order[currentorder].parsed_value = arrayItem.parsed_value;
-                            order[currentorder].base = 'Drinks';
-                            
-                            currentorder = currentorder + 1;
-                            
-                            break;
-                    }
-
-                });
-            })
-        */
+            });
+        })
 
         // testing struct so we don't have to hit ML platform every time
+        
+        /*
         var order = [
             {
                 "qty": 1,
@@ -104,7 +101,7 @@ exports.handler = function(context, event, callback) {
                 "type": "Drinks"
             }
         ];
-
+        */
 
         // this is the end of testing... 
 
