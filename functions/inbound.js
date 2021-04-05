@@ -1,6 +1,7 @@
 exports.handler = function(context, event, callback) {
 
-    const MonkeyLearn = require('monkeylearn')
+    const MonkeyLearn = require('monkeylearn');
+    var fuzz = require('fuzzball');
     
     var Airtable = require('airtable');
     var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
@@ -9,21 +10,39 @@ exports.handler = function(context, event, callback) {
 
     var inboundmessage = event.Body.toLowerCase();
     
-    if (inboundmessage.includes('menu') == true){
+    if (inboundmessage.includes('menu') == true){ 
 
         console.log('menu');
 
-        // TODO extract table number & short url
+        // TODO short url
 
-        var response = 'Hi welcome to ' + process.env.PLACE + ' check out our menu ' + process.env.HOST + '/menu.html?table=43&location=1'
+        var table_number = parseInt(inboundmessage.replace(/[^0-9]/g,''));
+        var orderid = shortid.generate();
 
-        callback(null, response);
+        base('Orders').create([
+            {
+                "fields":   {   "Phonenumber"   : event.From,
+                                "status"        : "created",
+                                "OrderID"       : orderid,
+                                "table"         : table_number
+                            }
+            },
+        ], function(err, records) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            var response = 'Hi welcome to ' + process.env.PLACE + ' check out our menu ' + process.env.HOST + '/menu.html'
+
+            callback(null, response);
+        });
 
     }else{
 
         console.log('order');
 
-        var orderid = shortid.generate();
+        /*
 
         const ml = new MonkeyLearn(process.env.MLKEY)
         let model_id = process.env.MLMODEL
@@ -84,11 +103,10 @@ exports.handler = function(context, event, callback) {
 
             });
         })
-
+        
+        */
 
         // testing struct so we don't have to hit ML platform every time
-        
-        /*
 
         var order = [
             {
@@ -102,69 +120,90 @@ exports.handler = function(context, event, callback) {
                 "type": "Drinks"
             }
         ];
-        */
 
+        // this is the end of testing..
 
-        // this is the end of testing... 
+        var product_keywords = [];
+        var product_keywords_records = [];
 
+        var order_record = '';
+        var order_id = '';
+        
+        base('Products').select({
+            maxRecords: 100,
+            view: "Grid view"
+        }).eachPage(function page(records, fetchNextPage) {
+        
+            records.forEach(function(record) {
+                product_keywords.push(record.get('keyword'));
+                product_keywords_records.push(record.getId());
+            });
 
-        base('Orders').create([
-            {
-                "fields":   {   "Phonenumber"   : event.From,
-                                "status"        : "created",
-                                "OrderID"       : orderid
-                            }
-            },
-        ], function(err, records) {
-            if (err) {
-                console.error(err);
-                return;
-            }
+            console.log(event.From);
+            
+            // TODO - ORDER STATUS
 
-            records.forEach(function (record) {
+            base('Orders').select({
+                filterByFormula: `{Phonenumber} = "${event.From}"`
+            }).eachPage(function page(records, fetchNextPage) {
 
-                console.log(orderid);
+                records.forEach(function(record) {
+                    order_record = record.getId();
+                    order_id = record.get('OrderID')
+                    console.log(order_record);
+                });
 
                 order.forEach(function (orderitem) {
 
-                    var order_record = record.getId();
-                    // TODO need to add fuzzy logic here like gins vs gin.
-                    base('Products').select({
-                        filterByFormula: `{keyword} = "${orderitem.parsed_value}"`
-                    }).eachPage(function page(records, fetchNextPage) {
+                    var selected_product = {};
 
-                        records.forEach(function(record) {
+                    selected_product.confidence = 0;
 
-                            base('Order Items').create([
-                                {
-                                    "fields": {     "keyword"       : [record.getId()],
-                                                    "qty"           : orderitem.qty,
-                                                    "OrderID"       : [order_record]
-                                            }
-                                }
-                                ], function(err, records) {
-                                if (err) {
-                                    console.error(err);
-                                    return;
-                                }
-                                records.forEach(function (record) {
-                                    console.log(record.getId());
-                                });
-                            });
-                        });
+                    var i = 0;
+
+                    product_keywords.forEach(function (product, i) {
+
+                        var tmp = fuzz.ratio(product, orderitem.parsed_value);
+
+                        if (tmp > selected_product.confidence){
+                            selected_product.confidence = tmp;
+                            selected_product.product = product;
+                            selected_product.id = product_keywords_records[i];
+                        }
+
+                        // TODO if confidence not > say 75 check in per product.
 
                     });
-                    
 
-                        
-                });                
+                    console.log(selected_product);
 
-                callback(null, 'Thank you for your order head over to ' + process.env.HOST + '/payment.html?orderid=' +  orderid);
+                    base('Order Items').create([
+                        {
+                            "fields": {     "keyword"       : [selected_product.id],
+                                            "qty"           : orderitem.qty,
+                                            "OrderID"       : [order_record]
+                                    }
+                        }
+                        ], function(err, records) {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        records.forEach(function (record) {
+                            console.log(record.getId());
+                        });
+                    });
+
+                });
+
+                callback(null, 'Thank you for your order head over to ' + process.env.HOST + '/payment.html?orderid=' +  order_id);
 
             });
 
-            
+        }, function done(err) {
+            if (err) { console.error(err); return; }
         });
+        
 
     }
 }
