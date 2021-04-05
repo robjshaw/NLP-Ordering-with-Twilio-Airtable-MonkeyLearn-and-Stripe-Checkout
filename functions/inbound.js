@@ -42,8 +42,6 @@ exports.handler = function(context, event, callback) {
 
         console.log('order');
 
-        /*
-
         const ml = new MonkeyLearn(process.env.MLKEY)
         let model_id = process.env.MLMODEL
         let data = [inboundmessage]
@@ -103,10 +101,10 @@ exports.handler = function(context, event, callback) {
 
             });
         })
-        
-        */
 
         // testing struct so we don't have to hit ML platform every time
+
+        /*
 
         var order = [
             {
@@ -120,6 +118,9 @@ exports.handler = function(context, event, callback) {
                 "type": "Drinks"
             }
         ];
+
+        */
+
 
         // this is the end of testing..
 
@@ -153,6 +154,8 @@ exports.handler = function(context, event, callback) {
                     console.log(order_record);
                 });
 
+                // TODO if order isn't already created create one
+
                 order.forEach(function (orderitem) {
 
                     var selected_product = {};
@@ -171,7 +174,7 @@ exports.handler = function(context, event, callback) {
                             selected_product.id = product_keywords_records[i];
                         }
 
-                        // TODO if confidence not > say 75 check in per product.
+                        // TODO if confidence not > ~75 check in per product.
 
                     });
 
