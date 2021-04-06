@@ -121,7 +121,6 @@ exports.handler = function(context, event, callback) {
 
         */
 
-
         // this is the end of testing..
 
         var product_keywords = [];
@@ -206,7 +205,6 @@ exports.handler = function(context, event, callback) {
         }, function done(err) {
             if (err) { console.error(err); return; }
         });
-        
 
     }
 }
