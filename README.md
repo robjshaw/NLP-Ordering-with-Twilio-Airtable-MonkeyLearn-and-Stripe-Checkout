@@ -2,6 +2,12 @@
 
 This is a demo of how you can go from an SMS interaction to a completed order utilizing Twilio, Monkey Learn, Airtable and Stripe Checkout.
 
+![high level customer journey](assets/readme_assets/stripe.003.jpeg)
+
+![high level customer journey](assets/readme_assets/stripe.004.jpeg)
+
+![high level customer journey](assets/readme_assets/stripe.005.jpeg)
+
 ## Environment Variables
 
 ```
