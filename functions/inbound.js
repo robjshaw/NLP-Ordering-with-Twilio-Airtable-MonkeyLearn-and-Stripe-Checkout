@@ -3,7 +3,7 @@ exports.handler = function(context, event, callback) {
     const MonkeyLearn = require('monkeylearn');
     
     var fuzz = require('fuzzball');
-    import wordsToNumbers from 'words-to-numbers';
+    const { wordsToNumbers } = require('words-to-numbers');
     
     var Airtable = require('airtable');
     var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
@@ -44,8 +44,6 @@ exports.handler = function(context, event, callback) {
 
         console.log('order');
 
-        /*
-
         const ml = new MonkeyLearn(process.env.MLKEY)
         let model_id = process.env.MLMODEL
         let data = [inboundmessage]
@@ -73,7 +71,7 @@ exports.handler = function(context, event, callback) {
                         if (arrayItem.parsed_value == 'a'){
                             qty = 1;
                         }else{
-                            qty = parseInt(arrayItem.parsed_value);
+                            qty = wordsToNumbers(arrayItem.parsed_value)
                         }
 
                         order[currentorder] = { 'qty' : qty};
@@ -106,13 +104,13 @@ exports.handler = function(context, event, callback) {
             });
         })
 
-        */
-
         // testing struct so we don't have to hit ML platform every time
+
+        /*
 
         var order = [
             {
-                "qty": wordsToNumbers('three'),
+                "qty": wordsToNumbers('one hundred'),
                 "parsed_value": "beef",
                 "type": "Products"
             },
@@ -122,6 +120,8 @@ exports.handler = function(context, event, callback) {
                 "type": "Drinks"
             }
         ];
+
+        */
 
         // this is the end of testing..
 
