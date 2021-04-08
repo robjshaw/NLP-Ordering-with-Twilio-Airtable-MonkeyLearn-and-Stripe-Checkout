@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Menu - Bar Luca</title>
+    <title>Payment - Bar Luca</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
@@ -83,9 +83,19 @@
     <div class="container">
     <h1>Welcome to payment @ Bar Luca</h1>
 
-        <!-- TODO add order summary here -->
-
         <p>Please see the payment items below</p>
+
+        <hr />
+
+        <div id="items">
+
+        </div>
+
+        <div id="total">
+          
+        </div>
+
+        <hr />
 
         <button type="button" id="checkout-button" class="btn btn-primary">Checkout</button>
 
@@ -95,16 +105,15 @@
             var checkoutButton = document.getElementById('checkout-button');
 
             checkoutButton.addEventListener('click', function() {
-                // Create a new Checkout Session using the server-side endpoint you
-                // created in step 3.
+
                 fetch('/create-checkout-session?orderid=' + getAllUrlParams().orderid, {
-                method: 'POST',
+                  method: 'POST',
                 })
                 .then(function(response) {
-                return response.json();
+                  return response.json();
                 })
                 .then(function(session) {
-                return stripe.redirectToCheckout({ sessionId: session.id });
+                  return stripe.redirectToCheckout({ sessionId: session.id });
                 })
                 .then(function(result) {
                 // If `redirectToCheckout` fails due to a browser or network
@@ -115,7 +124,7 @@
                 }
                 })
                 .catch(function(error) {
-                console.error('Error:', error);
+                  console.error('Error:', error);
                 });
             });
         </script>
@@ -127,6 +136,43 @@
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
         crossorigin="anonymous"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/2.1.0/json2html.min.js"></script>
+
+    <script>
+        tmp_order= "";
+        var tmp_order = getAllUrlParams().orderid;
+      
+        var settings = {
+            "url": '/order?OrderID=' + String(tmp_order),
+            "method": "GET",
+            "timeout": 0,
+        };
+
+        $.ajax(settings).done(function (response) {
+          
+          console.log(response);
+
+          $(function(){
+          
+            let data = response;
+            
+            let template = {'<>':'ul','html':[
+                {'<>':'li','obj':function(){return(this.order_items)},'html':[
+                    {'<>':'span','text':'${qty} x ${name} - $${price} '}
+                ]}
+            ]};
+            
+            //render with events
+            $('#items').json2html(data,template);
+
+          });
+
+          $('#items').html('<p>The total of your order is: <strong>$' + response.total + '</strong>');
+
+        });
+    </script>
+
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+  
   </body>
 </html>

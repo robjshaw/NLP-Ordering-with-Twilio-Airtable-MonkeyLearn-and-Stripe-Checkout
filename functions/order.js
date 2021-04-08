@@ -6,6 +6,7 @@ exports.handler = function(context, event, callback) {
     var response = {};
 
     response.order_items = [];
+    response.total = 0;
 
     base('Order Items').select({
         filterByFormula: `{OrderID} = "${event.OrderID}"`
@@ -18,6 +19,8 @@ exports.handler = function(context, event, callback) {
             tmp.qty = record.get('qty');
             tmp.price = record.get('Price');
             tmp.name = record.get('Product Name');
+
+            response.total = response.total + (parseInt(tmp.qty) * parseInt(tmp.price));
 
             response.order_items.push(tmp);
         });

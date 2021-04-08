@@ -1,7 +1,9 @@
 exports.handler = function(context, event, callback) {
 
     const MonkeyLearn = require('monkeylearn');
+    
     var fuzz = require('fuzzball');
+    import wordsToNumbers from 'words-to-numbers';
     
     var Airtable = require('airtable');
     var base = new Airtable({apiKey: process.env.AIRTABLEKEY}).base(process.env.AIRTABLEBASE);
@@ -41,6 +43,8 @@ exports.handler = function(context, event, callback) {
     }else{
 
         console.log('order');
+
+        /*
 
         const ml = new MonkeyLearn(process.env.MLKEY)
         let model_id = process.env.MLMODEL
@@ -102,13 +106,13 @@ exports.handler = function(context, event, callback) {
             });
         })
 
-        // testing struct so we don't have to hit ML platform every time
+        */
 
-        /*
+        // testing struct so we don't have to hit ML platform every time
 
         var order = [
             {
-                "qty": 1,
+                "qty": wordsToNumbers('three'),
                 "parsed_value": "beef",
                 "type": "Products"
             },
@@ -118,8 +122,6 @@ exports.handler = function(context, event, callback) {
                 "type": "Drinks"
             }
         ];
-
-        */
 
         // this is the end of testing..
 
@@ -140,17 +142,18 @@ exports.handler = function(context, event, callback) {
             });
 
             console.log(event.From);
-            
-            // TODO - ORDER STATUS
 
             base('Orders').select({
                 filterByFormula: `{Phonenumber} = "${event.From}"`
             }).eachPage(function page(records, fetchNextPage) {
 
                 records.forEach(function(record) {
-                    order_record = record.getId();
-                    order_id = record.get('OrderID')
-                    console.log(order_record);
+                    
+                    if (record.get('status') == 'created'){
+                        order_record = record.getId();
+                        order_id = record.get('OrderID')
+                        console.log(order_record);
+                    }
                 });
 
                 // TODO if order isn't already created create one

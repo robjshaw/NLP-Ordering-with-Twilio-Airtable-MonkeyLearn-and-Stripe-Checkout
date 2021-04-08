@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Menu - Bar Luca</title>
+    <title>Success - Bar Luca</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
@@ -83,8 +83,8 @@
         <hr />
 
         <h3>Some quick details</h3>
-
-        <p>We charged your card $<input type="text" id="amount" disabled> and your reference code is <input type="text" id="reference" disabled></p>
+        
+        <div class="alert alert-success" role="alert" id="sucess-info"></div>
         
     </div>
 
@@ -108,8 +108,14 @@
         $.ajax(settings).done(function (response) {
             console.log(response);
 
-            $('#amount').val(response.session.amount_total/100);
-            $('#reference').val(response.session.payment_intent);
+            /*
+              $('#amount').val(response.session.amount_total/100);
+              $('#reference').val(response.session.payment_intent);
+            */
+
+            var notification = 'We charged your card $<strong>' + response.session.amount_total/100 + ' </strong>and your reference code is <strong>' + response.session.payment_intent + '</strong>';
+
+            $('#sucess-info').html(notification);
 
         });
 
