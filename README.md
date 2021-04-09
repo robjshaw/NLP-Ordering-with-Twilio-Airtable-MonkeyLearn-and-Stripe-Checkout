@@ -6,6 +6,9 @@ This is a demo of how you can go from an SMS interaction to a completed order ut
 
 ![high level customer journey](assets/readme_assets/stripe.004.jpeg)
 
+### extraction model
+![high level customer journey](assets/readme_assets/model_example.jpg)
+
 ![high level customer journey](assets/readme_assets/stripe.005.jpeg)
 
 ## Environment Variables
