@@ -74,7 +74,9 @@ exports.handler = function(context, event, callback) {
                             qty = wordsToNumbers(arrayItem.parsed_value)
                         }
 
-                        order[currentorder] = { 'qty' : qty};
+                        console.log(qty);
+
+                        order[currentorder] = { 'qty' : parseInt(qty)};
 
                         break;
 
@@ -157,6 +159,8 @@ exports.handler = function(context, event, callback) {
                 });
 
                 // TODO if order isn't already created create one
+
+                console.log(order);
 
                 order.forEach(function (orderitem) {
 
